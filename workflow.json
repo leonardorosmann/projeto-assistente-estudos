@@ -1,0 +1,154 @@
+{
+  "name": "Projeto",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "assistente-estudos",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "90ce1608-71b1-4707-9682-ae3f9bd4843c",
+      "name": "Webhook",
+      "webhookId": "607a935c-c384-4391-b293-dec445c8414b"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef891fce-7b98-42e5-b33e-693fce4fdae6",
+              "name": "Texto",
+              "value": "={{$json.body.texto}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "b43554ec-e692-4f56-acb0-98c3649dbff1",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Você é um assistente educacional.\n\nAnalise o texto abaixo e gere:\n\n1. Um resumo em até 150 palavras.\n\n2. Os 5 tópicos mais importantes.\n\n3. 5 perguntas para revisão.\n\nTexto:\n\n{{$json.Texto}}",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        384,
+        16
+      ],
+      "id": "f1c8c89d-ebe6-4f8e-ae9f-5d45650fc90d",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "llama3:latest",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        288,
+        144
+      ],
+      "id": "60990257-63f5-44e0-a1e4-56100f2ad08a",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "HaxFN5QHdfSXMe4b",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"output\": \"{{$json.text}}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        736,
+        16
+      ],
+      "id": "3c9ee44d-6615-435a-b58f-cd722eb07bdf",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "fe8fb52e-91fe-46b7-b2da-393355f4092a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d009c4b058516b8334b9ab94a1a2fd8c57cd3d807d8f521b15e23dd985af9729"
+  },
+  "nodeGroups": [],
+  "id": "vRt6NzLKn3YTmniM",
+  "tags": []
+}
